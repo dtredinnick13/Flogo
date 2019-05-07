@@ -13,8 +13,8 @@
                 "description": "",
                 "tasks": [
                     {
-                        "id": "LogMessage",
-                        "name": "LogMessage",
+                        "id": "LogMessageAntMsg",
+                        "name": "LogMessageAntMsg",
                         "activity": {
                             "ref": "git.tibco.com/git/product/ipaas/wi-contrib.git/contributions/General/activity/log",
                             "settings": {},
@@ -46,8 +46,31 @@
                         }
                     },
                     {
-                        "id": "HexConverter",
-                        "name": "HexConverter",
+                        "id": "LogHRMsgPageNo",
+                        "name": "LogHRMsgPageNo",
+                        "activity": {
+                            "ref": "github.com/TIBCOSoftware/flogo-contrib/activity/log",
+                            "settings": {},
+                            "input": {
+                                "message": "",
+                                "flowInfo": false,
+                                "addToFlow": false
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['message']",
+                                        "type": "expression",
+                                        "value": "string.concat(\"Heartrate message received - page # \", string.substring($flow.message, 1, 1))"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "DecodeHeartRate",
+                        "name": "DecodeHeartRate",
                         "activity": {
                             "ref": "HexConverter/activity/hexConverter",
                             "settings": {},
@@ -67,8 +90,8 @@
                         }
                     },
                     {
-                        "id": "MQTTPub",
-                        "name": "MQTTPub",
+                        "id": "MQTTPubHRMsg",
+                        "name": "MQTTPubHRMsg",
                         "activity": {
                             "ref": "git.tibco.com/git/product/ipaas/wi-mqtt.git/Mqtt/activity/publish",
                             "settings": {},
@@ -113,7 +136,7 @@
                                                 "visible": true,
                                                 "Description": "Enter a broker URL in the form '<protocol>://<host>:<port>'"
                                             },
-                                            "value": "tcp://192.168.224.147:1883"
+                                            "value": "tcp://192.168.224.165:1883"
                                         },
                                         {
                                             "name": "user",
@@ -137,7 +160,7 @@
                                                 "encryptable": true,
                                                 "Description": "Enter a password if this connection requires one"
                                             },
-                                            "value": "SECRET:AFSUId4BrFn1O+08OPh+72uzNHocUvb2tw=="
+                                            "value": "SECRET:karfnc7HZviE+r9kVL/5ftxUHTfkVYJJIg=="
                                         },
                                         {
                                             "name": "encryptionMode",
@@ -234,7 +257,7 @@
                                     "propertyMap": {},
                                     "keyfield": "name",
                                     "isValid": true,
-                                    "lastUpdatedTime": 1557168320504,
+                                    "lastUpdatedTime": 1557259194946,
                                     "user": "flogo",
                                     "connectorName": "LocalMQTT",
                                     "connectorDescription": " "
@@ -251,7 +274,7 @@
                                     {
                                         "mapTo": "$INPUT['stringValue']",
                                         "type": "expression",
-                                        "value": "string.concat(\"{\\\"device\\\":\", string.tostring($flow.deviceType) , \",  \\\"heartRate\\\": \", string.tostring($activity[HexConverter].result), \"}\")"
+                                        "value": "string.concat(\"{\\\"device\\\":\", string.tostring($flow.deviceType) , \",  \\\"heartRate\\\": \", string.tostring($activity[DecodeHeartRate].result), \"}\")"
                                     }
                                 ]
                             }
@@ -268,8 +291,106 @@
                         }
                     },
                     {
-                        "id": "MQTTPub1",
-                        "name": "MQTTPub1",
+                        "id": "LogNonDataHRPage",
+                        "name": "LogNonDataHRPage",
+                        "activity": {
+                            "ref": "git.tibco.com/git/product/ipaas/wi-contrib.git/contributions/General/activity/log",
+                            "settings": {},
+                            "input": {
+                                "Log Level": "INFO",
+                                "flowInfo": false,
+                                "message": ""
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['message']",
+                                        "type": "expression",
+                                        "value": "string.concat(\"Non-data page received - Heart Rate Message = \", $flow.message)"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "Return3",
+                        "name": "Return3",
+                        "activity": {
+                            "ref": "github.com/TIBCOSoftware/flogo-contrib/activity/actreturn",
+                            "settings": {},
+                            "input": {},
+                            "output": {}
+                        }
+                    },
+                    {
+                        "id": "LogCadenceMsgPgNo",
+                        "name": "LogCadenceMsgPgNo",
+                        "activity": {
+                            "ref": "git.tibco.com/git/product/ipaas/wi-contrib.git/contributions/General/activity/log",
+                            "settings": {},
+                            "input": {
+                                "Log Level": "INFO",
+                                "flowInfo": false,
+                                "message": ""
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['message']",
+                                        "type": "expression",
+                                        "value": "string.concat(\"Cadence message received - page # \", string.substring($flow.message, 1, 1))"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "DecodeCadenceTimeValue",
+                        "name": "DecodeCadenceTimeValue",
+                        "activity": {
+                            "ref": "HexConverter/activity/hexConverter",
+                            "settings": {},
+                            "input": {
+                                "hexBytes": ""
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['hexBytes']",
+                                        "type": "expression",
+                                        "value": "string.concat(string.substring($flow.message, 10, 2),string.substring($flow.message, 8, 2)) "
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "DecodeCrankRevs",
+                        "name": "DecodeCrankRevs",
+                        "activity": {
+                            "ref": "HexConverter/activity/hexConverter",
+                            "settings": {},
+                            "input": {
+                                "hexBytes": ""
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['hexBytes']",
+                                        "type": "expression",
+                                        "value": "string.concat(string.substring($flow.message, 14, 2),string.substring($flow.message, 12, 2))"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "MQTTPubCadMsg",
+                        "name": "MQTTPubCadMsg",
                         "activity": {
                             "ref": "git.tibco.com/git/product/ipaas/wi-mqtt.git/Mqtt/activity/publish",
                             "settings": {},
@@ -314,7 +435,7 @@
                                                 "visible": true,
                                                 "Description": "Enter a broker URL in the form '<protocol>://<host>:<port>'"
                                             },
-                                            "value": "tcp://192.168.224.147:1883"
+                                            "value": "tcp://192.168.224.165:1883"
                                         },
                                         {
                                             "name": "user",
@@ -338,7 +459,7 @@
                                                 "encryptable": true,
                                                 "Description": "Enter a password if this connection requires one"
                                             },
-                                            "value": "SECRET:YDU36nrtzyAnpCUpKCSPTf7Yf0ZULNilKw=="
+                                            "value": "SECRET:s+iF3mVX0MzUn9Mjsyw5roaStrshdJXevw=="
                                         },
                                         {
                                             "name": "encryptionMode",
@@ -435,7 +556,7 @@
                                     "propertyMap": {},
                                     "keyfield": "name",
                                     "isValid": true,
-                                    "lastUpdatedTime": 1557168320504,
+                                    "lastUpdatedTime": 1557259194946,
                                     "user": "flogo",
                                     "connectorName": "LocalMQTT",
                                     "connectorDescription": " "
@@ -451,8 +572,8 @@
                                 "input": [
                                     {
                                         "mapTo": "$INPUT['stringValue']",
-                                        "type": "literal",
-                                        "value": "not implimented"
+                                        "type": "expression",
+                                        "value": "string.concat(\"{\\\"device\\\":\", string.tostring($flow.deviceType) , \",  \\\"timeDelta\\\": \",  string.tostring($activity[DecodeCadenceTimeValue].result), \", \\\"revolutions\\\": \", string.tostring($activity[DecodeCrankRevs].result), \"}\")"
                                     }
                                 ]
                             }
@@ -464,6 +585,41 @@
                         "activity": {
                             "ref": "github.com/TIBCOSoftware/flogo-contrib/activity/actreturn",
                             "settings": {},
+                            "input": {
+                                "mappings": ""
+                            },
+                            "output": {}
+                        }
+                    },
+                    {
+                        "id": "LogNonDataCadPage",
+                        "name": "LogNonDataCadPage",
+                        "activity": {
+                            "ref": "git.tibco.com/git/product/ipaas/wi-contrib.git/contributions/General/activity/log",
+                            "settings": {},
+                            "input": {
+                                "Log Level": "INFO",
+                                "flowInfo": false,
+                                "message": ""
+                            },
+                            "output": {},
+                            "mappings": {
+                                "input": [
+                                    {
+                                        "mapTo": "$INPUT['message']",
+                                        "type": "expression",
+                                        "value": "string.concat(\"Non-data page received - Cadence Message = \", $flow.message)"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "id": "Return4",
+                        "name": "Return4",
+                        "activity": {
+                            "ref": "github.com/TIBCOSoftware/flogo-contrib/activity/actreturn",
+                            "settings": {},
                             "input": {},
                             "output": {}
                         }
@@ -472,40 +628,90 @@
                 "links": [
                     {
                         "id": 1,
-                        "from": "LogMessage",
+                        "from": "LogMessageAntMsg",
                         "to": "Return",
                         "type": "default"
                     },
                     {
                         "id": 2,
-                        "from": "LogMessage",
-                        "to": "HexConverter",
+                        "from": "LogMessageAntMsg",
+                        "to": "LogHRMsgPageNo",
                         "type": "expression",
                         "value": "$flow.deviceType == 120"
                     },
                     {
                         "id": 3,
-                        "from": "HexConverter",
-                        "to": "MQTTPub",
+                        "from": "LogHRMsgPageNo",
+                        "to": "DecodeHeartRate",
                         "type": "default"
                     },
                     {
                         "id": 4,
-                        "from": "MQTTPub",
-                        "to": "Return1",
+                        "from": "DecodeHeartRate",
+                        "to": "MQTTPubHRMsg",
                         "type": "default"
                     },
                     {
                         "id": 5,
-                        "from": "LogMessage",
-                        "to": "MQTTPub1",
+                        "from": "MQTTPubHRMsg",
+                        "to": "Return1",
+                        "type": "default"
+                    },
+                    {
+                        "id": 6,
+                        "from": "LogHRMsgPageNo",
+                        "to": "LogNonDataHRPage",
+                        "type": "expression",
+                        "value": "string.substring($flow.message, 1, 1) != \"4\""
+                    },
+                    {
+                        "id": 7,
+                        "from": "LogNonDataHRPage",
+                        "to": "Return3",
+                        "type": "default"
+                    },
+                    {
+                        "id": 8,
+                        "from": "LogMessageAntMsg",
+                        "to": "LogCadenceMsgPgNo",
                         "type": "expression",
                         "value": "$flow.deviceType == 123"
                     },
                     {
-                        "id": 6,
-                        "from": "MQTTPub1",
+                        "id": 9,
+                        "from": "LogCadenceMsgPgNo",
+                        "to": "DecodeCadenceTimeValue",
+                        "type": "default"
+                    },
+                    {
+                        "id": 10,
+                        "from": "DecodeCadenceTimeValue",
+                        "to": "DecodeCrankRevs",
+                        "type": "default"
+                    },
+                    {
+                        "id": 11,
+                        "from": "DecodeCrankRevs",
+                        "to": "MQTTPubCadMsg",
+                        "type": "default"
+                    },
+                    {
+                        "id": 12,
+                        "from": "MQTTPubCadMsg",
                         "to": "Return2",
+                        "type": "default"
+                    },
+                    {
+                        "id": 13,
+                        "from": "LogCadenceMsgPgNo",
+                        "to": "LogNonDataCadPage",
+                        "type": "expression",
+                        "value": "string.substring($flow.message, 1, 1) != 0"
+                    },
+                    {
+                        "id": 14,
+                        "from": "LogNonDataCadPage",
+                        "to": "Return4",
                         "type": "default"
                     }
                 ],
@@ -584,9 +790,9 @@
         {
             "name": "MQTT.password",
             "type": "string",
-            "value": "SECRET:8UQBPs9pQWR1DAA3FVTSixu3itI8mphouA=="
+            "value": "SECRET:8ADjxs5B8t0YtVVJzOeTqQJwWHfOElBu7Q=="
         }
     ],
-    "contrib": "W3sicmVmIjoiZ2l0aHViLmNvbS9USUJDT1NvZnR3YXJlL2Zsb2dvLWNvbnRyaWIvdHJpZ2dlci9yZXN0IiwiczNsb2NhdGlvbiI6IntVU0VSSUR9L0RlZmF1bHQvdHJpZ2dlci9yZXN0In0seyJyZWYiOiJnaXQudGliY28uY29tL2dpdC9wcm9kdWN0L2lwYWFzL3dpLWNvbnRyaWIuZ2l0L2NvbnRyaWJ1dGlvbnMvR2VuZXJhbCIsInMzbG9jYXRpb24iOiJUaWJjby9HZW5lcmFsIn0seyJyZWYiOiJnaXQudGliY28uY29tL2dpdC9wcm9kdWN0L2lwYWFzL3dpLW1xdHQuZ2l0L01xdHQiLCJzM2xvY2F0aW9uIjoiVGliY28vTXF0dCJ9LHsicmVmIjoiSGV4Q29udmVydGVyIiwiczNsb2NhdGlvbiI6IntVU0VSSUR9L0hleENvbnZlcnRlciJ9XQ==",
-    "fe_metadata": "UEsDBAoAAAAIAKpzp06rqSRGFQAAABMAAAAIAAAAYXBwLmpzb26rViopykxPTy1yy8kvL1ayio6tBQBQSwECFAAKAAAACACqc6dOq6kkRhUAAAATAAAACAAAAAAAAAAAAAAAAAAAAAAAYXBwLmpzb25QSwUGAAAAAAEAAQA2AAAAOwAAAAAA"
+    "contrib": "W3sicmVmIjoiZ2l0aHViLmNvbS9USUJDT1NvZnR3YXJlL2Zsb2dvLWNvbnRyaWIvdHJpZ2dlci9yZXN0IiwiczNsb2NhdGlvbiI6IntVU0VSSUR9L0RlZmF1bHQvdHJpZ2dlci9yZXN0In0seyJyZWYiOiJnaXQudGliY28uY29tL2dpdC9wcm9kdWN0L2lwYWFzL3dpLWNvbnRyaWIuZ2l0L2NvbnRyaWJ1dGlvbnMvR2VuZXJhbCIsInMzbG9jYXRpb24iOiJUaWJjby9HZW5lcmFsIn0seyJyZWYiOiJnaXQudGliY28uY29tL2dpdC9wcm9kdWN0L2lwYWFzL3dpLW1xdHQuZ2l0L01xdHQiLCJzM2xvY2F0aW9uIjoiVGliY28vTXF0dCJ9LHsicmVmIjoiSGV4Q29udmVydGVyIiwiczNsb2NhdGlvbiI6IntVU0VSSUR9L0hleENvbnZlcnRlciJ9LHsicmVmIjoiZ2l0aHViLmNvbS9USUJDT1NvZnR3YXJlL2Zsb2dvLWNvbnRyaWIvYWN0aXZpdHkvbG9nIiwiczNsb2NhdGlvbiI6IntVU0VSSUR9L0RlZmF1bHQvYWN0aXZpdHkvbG9nIn1d",
+    "fe_metadata": "UEsDBAoAAAAIAOahp06rqSRGFQAAABMAAAAIAAAAYXBwLmpzb26rViopykxPTy1yy8kvL1ayio6tBQBQSwECFAAKAAAACADmoadOq6kkRhUAAAATAAAACAAAAAAAAAAAAAAAAAAAAAAAYXBwLmpzb25QSwUGAAAAAAEAAQA2AAAAOwAAAAAA"
 }
