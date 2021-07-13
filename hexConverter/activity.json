@@ -1,0 +1,26 @@
+{
+  "name": "hexConverter",
+  "title": "Hex Converter",
+  "version": "0.0.1",
+  "type": "flogo:activity",
+  "author": "Don Tredinnick <dtredinnick@tibco.com>",
+  "display":{
+    "category": "HexConverter",
+    "visible": true,
+    "smallIcon": "hex.png",
+    "description": "activity description"
+  },
+  "ref": "HexConverter/activity/hexConverter",
+  "inputs":[
+    {
+      "name": "hexBytes",
+      "type": "string"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "result",
+      "type": "integer"
+    }
+  ]
+}
